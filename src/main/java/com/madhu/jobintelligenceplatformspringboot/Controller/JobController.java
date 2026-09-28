@@ -1,6 +1,8 @@
-package com.madhu.jobintelligenceplatformspringboot;
+package com.madhu.jobintelligenceplatformspringboot.Controller;
 
-import com.madhu.jobintelligenceplatformspringboot.entity.Job;
+import com.madhu.jobintelligenceplatformspringboot.DTOs.JobRequestDTO;
+import com.madhu.jobintelligenceplatformspringboot.DTOs.JobResponseDTO;
+import com.madhu.jobintelligenceplatformspringboot.Service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +12,7 @@ import java.util.List;
 @RequestMapping("/jobs")
 public class JobController {
     @Autowired
-    private  JobService jobService;
+    private JobService jobService;
 
     @GetMapping
     public List<JobResponseDTO> getAllJobs() {
@@ -24,18 +26,23 @@ public class JobController {
 
     @GetMapping("/search")
     public List<JobResponseDTO> searchJobs(
-            @RequestParam(required = false) String Company,
+            @RequestParam(required = false) String company,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String skills
     ){
-        if(Company != null)
-            return jobService.getJobsByCompany(Company);
+        if(company != null)
+            return jobService.getJobsByCompany(company);
         else if(location != null)
-            return jobService.getJobsByCompany(location);
+            return jobService.getJobsByLocation(location);
         else if(skills != null)
-            return jobService.getJobsByCompany(skills);
+            return jobService.getJobsBySkills(skills);
         else
             return jobService.getAllJobs();
+    }
+
+    @GetMapping("/search/companies")
+    public List<JobResponseDTO> getJobByCompanies(@RequestParam List<String> Company){
+        return jobService.getJobByCompanies(Company);
     }
 
     @PostMapping

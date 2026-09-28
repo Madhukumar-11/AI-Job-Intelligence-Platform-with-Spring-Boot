@@ -1,5 +1,8 @@
-package com.madhu.jobintelligenceplatformspringboot;
+package com.madhu.jobintelligenceplatformspringboot.Service;
 
+import com.madhu.jobintelligenceplatformspringboot.DTOs.JobRequestDTO;
+import com.madhu.jobintelligenceplatformspringboot.DTOs.JobResponseDTO;
+import com.madhu.jobintelligenceplatformspringboot.Repository.JobRepository;
 import com.madhu.jobintelligenceplatformspringboot.entity.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +13,19 @@ import java.util.List;
 public class JobService {
     @Autowired
     private JobRepository jobRepository;
+
+    private JobResponseDTO convertToResponseDTO(Job job) {
+        return new JobResponseDTO(
+                job.getId(),
+                job.getTitle(),
+                job.getCompany(),
+                job.getLocation(),
+                job.getSkills(),
+                job.getDescription(),
+                job.getExperience(),
+                job.getSalary(),
+                job.getApplyUrl());
+    }
 
     public List<JobResponseDTO> getAllJobs(){
         List<Job> jobs = jobRepository.findAll();
@@ -60,12 +76,17 @@ public class JobService {
     }
 
     public List<JobResponseDTO> getJobsByLocation(String location){
-        return jobRepository.findByCompany(location)
+        return jobRepository.findByLocation(location)
                 .stream().map(this::convertToResponseDTO).toList();
     }
 
     public List<JobResponseDTO> getJobsBySkills(String skills){
-        return jobRepository.findByCompany(skills)
+        return jobRepository.findBySkillsContaining(skills)
+                .stream().map(this::convertToResponseDTO).toList();
+    }
+
+    public List<JobResponseDTO> getJobByCompanies(List<String> Company){
+        return jobRepository.findByCompanyIn(Company)
                 .stream().map(this::convertToResponseDTO).toList();
     }
 
@@ -74,18 +95,5 @@ public class JobService {
             throw new RuntimeException("Job not found with id " + id);
         }
         jobRepository.deleteById(id);
-    }
-
-    private JobResponseDTO convertToResponseDTO(Job job) {
-        return new JobResponseDTO(
-                job.getId(),
-                job.getTitle(),
-                job.getCompany(),
-                job.getLocation(),
-                job.getSkills(),
-                job.getDescription(),
-                job.getExperience(),
-                job.getSalary(),
-                job.getApplyUrl());
     }
 }

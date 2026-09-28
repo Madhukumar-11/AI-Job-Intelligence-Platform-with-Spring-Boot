@@ -1,0 +1,9 @@
+package com.madhu.jobintelligenceplatformspringboot.Repository;
+
+import com.madhu.jobintelligenceplatformspringboot.entity.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository <Users, Long>{
+    Optional<Users> fingByUsername(String username);
+}

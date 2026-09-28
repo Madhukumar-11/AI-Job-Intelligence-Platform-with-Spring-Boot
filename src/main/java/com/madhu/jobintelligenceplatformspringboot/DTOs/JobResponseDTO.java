@@ -1,11 +1,16 @@
-package com.madhu.jobintelligenceplatformspringboot;
+package com.madhu.jobintelligenceplatformspringboot.DTOs;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class JobRequestDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class JobResponseDTO {
+    private int id;
     private String title;
     private String company;
     private String location;
