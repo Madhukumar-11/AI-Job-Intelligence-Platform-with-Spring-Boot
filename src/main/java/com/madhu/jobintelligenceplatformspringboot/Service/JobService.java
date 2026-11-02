@@ -2,6 +2,7 @@ package com.madhu.jobintelligenceplatformspringboot.Service;
 
 import com.madhu.jobintelligenceplatformspringboot.DTOs.JobRequestDTO;
 import com.madhu.jobintelligenceplatformspringboot.DTOs.JobResponseDTO;
+import com.madhu.jobintelligenceplatformspringboot.Exception.JobNotFoundException;
 import com.madhu.jobintelligenceplatformspringboot.Repository.JobRepository;
 import com.madhu.jobintelligenceplatformspringboot.entity.Job;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class JobService {
 
     public JobResponseDTO getJobById(int id){
         Job job = jobRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Job not found with id "+id));
+                .orElseThrow(()-> new JobNotFoundException("Job not found with id "+id));
         return convertToResponseDTO(job);
     }
 
@@ -55,7 +56,7 @@ public class JobService {
 
     public JobResponseDTO updateJob(int id, JobRequestDTO dto){
         Job job = jobRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Job not found with id " + id));
+                orElseThrow(() -> new JobNotFoundException("Job not found with id " + id));
 
         job.setTitle(dto.getTitle());
         job.setCompany(dto.getCompany());
@@ -92,7 +93,7 @@ public class JobService {
 
     public void deleteJob(int id){
         if(!jobRepository.existsById(id)){
-            throw new RuntimeException("Job not found with id " + id);
+            throw new JobNotFoundException("Job not found with id " + id);
         }
         jobRepository.deleteById(id);
     }

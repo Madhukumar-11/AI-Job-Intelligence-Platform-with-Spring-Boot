@@ -1,6 +1,7 @@
 package com.madhu.jobintelligenceplatformspringboot.Controller;
 
 import com.madhu.jobintelligenceplatformspringboot.DTOs.LoginRequestDTO;
+import com.madhu.jobintelligenceplatformspringboot.DTOs.LoginResponseDTO;
 import com.madhu.jobintelligenceplatformspringboot.DTOs.SignUpRequestDTO;
 import com.madhu.jobintelligenceplatformspringboot.Service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String createUser(@RequestBody SignUpRequestDTO signUpRequestDTO){
-        AuthService.signUp(signUpRequestDTO);
-        return "User Created Successfully";
+        return authService.signUp(signUpRequestDTO);
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDTO loginRequestDTO){
-        AuthService.login(loginRequestDTO);
-        return "Login Successfull";
+    public LoginResponseDTO signIn(@RequestBody LoginRequestDTO loginRequestDTO){
+        return authService.login(loginRequestDTO);
     }
 
 }

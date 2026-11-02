@@ -1,7 +1,10 @@
 package com.madhu.jobintelligenceplatformspringboot.Security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +15,12 @@ import java.util.Date;
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
-    private final SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private SecretKey secretKey;
+
+    @PostConstruct
+    public void init() {
+    secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    }
 
     public String generateToken(String username, String role){
         String token = Jwts.builder()
@@ -24,5 +32,28 @@ public class JwtUtil {
                     .compact();
 
         return token;
+    }
+
+    // Authentication for checking the JWT token
+    private Claims extractAllClaims(String token){
+        Claims claims = Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload();
+        return claims;
+    }
+    public boolean validateToken(String token){
+        try{
+            extractAllClaims(token);
+            return true;
+        }catch(JwtException | IllegalArgumentException e){
+            return false;
+        }
+    }
+    public String extractUsername(String token){
+        String username = extractAllClaims(token).getSubject();
+        return username;
+    }
+    public String extractRole(String token){
+        String role = extractAllClaims(token).get("role",String.class);
+        return role;
     }
 }
