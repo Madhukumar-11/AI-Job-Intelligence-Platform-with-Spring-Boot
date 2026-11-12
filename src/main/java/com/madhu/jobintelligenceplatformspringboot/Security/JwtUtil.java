@@ -30,7 +30,6 @@ public class JwtUtil {
                     .expiration(new Date(System.currentTimeMillis() + 3600000))
                     .signWith(secretKey)
                     .compact();
-
         return token;
     }
 

@@ -15,7 +15,7 @@ public class JobService {
     @Autowired
     private JobRepository jobRepository;
 
-    private JobResponseDTO convertToResponseDTO(Job job) {
+    public JobResponseDTO convertToResponseDTO(Job job) {
         return new JobResponseDTO(
                 job.getId(),
                 job.getTitle(),
