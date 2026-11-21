@@ -1,5 +1,6 @@
 package com.madhu.jobintelligenceplatformspringboot.Service;
 
+import com.madhu.jobintelligenceplatformspringboot.DTOs.JobMatchResponseDTO;
 import com.madhu.jobintelligenceplatformspringboot.Exception.InvalidResumeException;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -8,10 +9,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Service
 public class ResumeService {
+
+    private final JobMatchService jobMatchService;
+
+    private final SkillExtractor skillExtractor;
+
+    public ResumeService(SkillExtractor  skillExtractor, JobMatchService jobMatchService) {
+        this.jobMatchService =jobMatchService;
+        this.skillExtractor = skillExtractor;
+    }
+
     public String extractText(MultipartFile file) throws IOException {
         String text;
         if(file.isEmpty()){
@@ -31,6 +43,14 @@ public class ResumeService {
             throw new InvalidResumeException("Not in readable format");
         }
 
-        return "Extracted " + text.length() + " characters";
+        return text;
     }
+
+    public List<JobMatchResponseDTO> analyzeResume(MultipartFile file) throws IOException {
+        String text = extractText(file);
+        List<String> resumeSkills = skillExtractor.extractSkills(text);
+
+        return jobMatchService.matchAllJobs(resumeSkills);
+    }
+
 }

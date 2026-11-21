@@ -6,9 +6,7 @@ import com.madhu.jobintelligenceplatformspringboot.entity.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class JobMatchService {
@@ -19,6 +17,21 @@ public class JobMatchService {
     @Autowired
     private JobService jobService;
 
+    private static final Map<String, String> aliases = Map.of(
+            "mysql", "sql",
+            "postgresql", "sql",
+            "postgres", "sql",
+            "js", "javascript",
+            "react.js","react",
+            "k8s","kubernetes",
+            "reactjs","react"
+    );
+
+    private String normalize(String skill){
+        skill = skill.trim().toLowerCase();
+        return aliases.getOrDefault(skill,skill);
+    }
+
     public JobMatchResponseDTO matchJob(List<String> resumeSkills, Job job){
         List<String> skillsMatched;
         List<String> skillsNotMatched;
@@ -28,18 +41,31 @@ public class JobMatchService {
             skillsNotMatched = new ArrayList<>();
             matchScore = 0;
         }else {
-            List<String> lowerCaseResumeSkills = resumeSkills.stream().map(s -> s.trim().toLowerCase()).toList();
-            List<String> jobSkills = List.of(job.getSkills().split(","));
+            List<String> jobSkills = Arrays.stream(job.getSkills().split(","))
+                    .map(String::trim)
+                    .filter(skill -> !skill.isBlank())
+                    .toList();
+            List<String> normalizedResumeSkills;
+
+            if (resumeSkills != null) {
+                normalizedResumeSkills = resumeSkills.stream()
+                        .filter(Objects::nonNull)
+                        .map(this::normalize)
+                        .distinct()
+                        .toList();
+            }else{
+                normalizedResumeSkills = Collections.emptyList();
+            }
 
             skillsMatched = new ArrayList<>();
             skillsNotMatched = new ArrayList<>();
 
-            for (String skill : jobSkills) {
-                String cleaned = skill.trim();                        // the trimmed copy, saved this time
-                if (lowerCaseResumeSkills.contains(cleaned.toLowerCase())) {   // compare in lowercase and also compares substrings
-                    skillsMatched.add(cleaned);
+            for (String skill : jobSkills) {   // just trimmed, exactly as the job wrote it
+                String key = normalize(skill);      // the standard name, used only for comparing
+                if (normalizedResumeSkills.contains(key)) {
+                    skillsMatched.add(skill);
                 } else {
-                    skillsNotMatched.add(cleaned);
+                    skillsNotMatched.add(skill);
                 }
             }
 
@@ -60,7 +86,7 @@ public class JobMatchService {
                 skillsMatched, skillsNotMatched);
     }
 
-    public List<JobMatchResponseDTO> matchAlljobs(List<String> resumeSkills){
+    public List<JobMatchResponseDTO> matchAllJobs(List<String> resumeSkills){
         return jobRepository.findAll().stream()
                 .map(job -> matchJob(resumeSkills, job))
                 .filter(result -> result.getMatchScore() > 0)

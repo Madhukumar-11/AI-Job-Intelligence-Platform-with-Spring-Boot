@@ -37,4 +37,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleException(InvalidResumeException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(AIServiceException.class)
+    public ResponseEntity<String> handleException(AIServiceException ex){
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ex.getMessage());
+    }
 }
